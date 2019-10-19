@@ -88,6 +88,7 @@ public class Test {
     }
 
     public static void main(String[] args) throws InterruptedException {
+        System.out.println(Runtime.getRuntime().availableProcessors());
         Test t = new Test();
         t.test64(1);
         t.test256(1);

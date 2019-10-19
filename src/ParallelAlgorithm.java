@@ -1,4 +1,7 @@
 import java.util.ArrayList;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class ParallelAlgorithm {
     private ArrayList<ArrayList<Double>> matrix;
@@ -10,9 +13,8 @@ public class ParallelAlgorithm {
      * Performs Gaussian Elimination on the matrix
      * @throws InterruptedException
      */
-    public void GE() throws InterruptedException {
+    public void GE() {
         for (int pivot = 0; pivot < rowSize; pivot++) {
-            ArrayList<GEThread> threads = new ArrayList<>();
             if (matrix.get(pivot).get(pivot) < EPSILON) {
                 for (int i = pivot + 1; i < rowSize; i++) {
                     if (matrix.get(i).get(pivot) < EPSILON) {
@@ -22,34 +24,35 @@ public class ParallelAlgorithm {
                 }
             }
             ArrayList<Double> row = matrix.get(pivot);
+            ExecutorService threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+            //ExecutorService threadPool = Executors.newFixedThreadPool(6);
             row = multiplyRow(row, 1 / row.get(pivot));
             for (int r = pivot + 1; r < rowSize; r++) {
                 Double value = -1 * matrix.get(r).get(pivot) / row.get(pivot);
-                for (int c = pivot; c < colSize; c++) { threads.add(new GEThread(matrix, r, c, value)); }
+                for (int c = pivot; c < colSize; c++) {
+                    threadPool.submit(new GEThread(matrix, r, c, value));
+                }
             }
-            threads.forEach((n) -> (n).start());
-            for (GEThread thread : threads) { thread.join(); }
+            threadPool.shutdown();
         }
-        ArrayList<RoundingThread> threads = new ArrayList<>();
+        ExecutorService threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
         for (int r = 0; r < rowSize; r++) {
             for (int c = 0; c < colSize; c++) {
-                threads.add(new RoundingThread(matrix, r, c));
+                threadPool.submit(new RoundingThread(matrix, r, c));
             }
         }
-        threads.forEach((n) -> (n).start());
-        for (RoundingThread thread : threads) { thread.join(); }
+        threadPool.shutdown();
     }
 
-    public double[] backSubstitution() throws InterruptedException {
+    public double[] backSubstitution() {
         double[] results = new double[rowSize];
         for (int pivot = matrix.size() - 1; pivot >= 0; pivot--) {
-            ArrayList<BSThread> threads = new ArrayList<>();
+            ExecutorService threadPool = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
             results[pivot] = matrix.get(pivot).get(rowSize);
             for (int row = pivot - 1; row >= 0; row--) {
-                threads.add(new BSThread(matrix, row, pivot, results[pivot]));
+                threadPool.submit(new BSThread(matrix, row, pivot, results[pivot]));
             }
-            threads.forEach((n) -> n.start());
-            for (BSThread thread : threads) { thread.join(); }
+            threadPool.shutdown();
         }
         return results;
     }
