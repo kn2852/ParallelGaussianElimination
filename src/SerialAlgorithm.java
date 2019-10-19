@@ -1,9 +1,9 @@
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
+import java.util.Vector;
 
 public class SerialAlgorithm {
-    public static ArrayList<ArrayList<Double>> matrix = new ArrayList<>();
+    public static Vector<Vector<Double>> matrix = new Vector<>();
     private int rowSize;
     private int colSize;
     public static double EPSILON = 0.00000001;
@@ -22,7 +22,7 @@ public class SerialAlgorithm {
                     }
                 }
             }
-            ArrayList<Double> row = matrix.get(pivot);
+            Vector<Double> row = matrix.get(pivot);
             row = multiplyRow(row, 1 / row.get(pivot));
             for (int r = pivot + 1; r < rowSize; r++) {
                 Double value = -1 * matrix.get(r).get(pivot) / row.get(pivot);
@@ -32,7 +32,7 @@ public class SerialAlgorithm {
                 }
             }
         }
-        for (ArrayList<Double> row : matrix) {
+        for (Vector<Double> row : matrix) {
             row.replaceAll((n) -> round(n, 6));
         }
     }
@@ -64,7 +64,7 @@ public class SerialAlgorithm {
      * @param scalar the scalar to multiply with
      * @return the new row
      */
-    private ArrayList<Double> multiplyRow(ArrayList<Double> row, double scalar) {
+    private Vector<Double> multiplyRow(Vector<Double> row, double scalar) {
         row.replaceAll(n -> scalar * n);
         return row;
     }
@@ -75,12 +75,12 @@ public class SerialAlgorithm {
      * @param row2 the second row to swap
      */
     private void swapRow(int row1, int row2) {
-        ArrayList<Double> temp = matrix.get(row2);
+        Vector<Double> temp = matrix.get(row2);
         matrix.set(row2, matrix.get(row1));
         matrix.set(row1, temp);
     }
 
-    public SerialAlgorithm(ArrayList<ArrayList<Double>> matrix) {
+    public SerialAlgorithm(Vector<Vector<Double>> matrix) {
         this.matrix = matrix;
         rowSize = matrix.size();
         colSize = rowSize + 1;

@@ -1,13 +1,13 @@
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.ArrayList;
+import java.util.Vector;
 
 public class RoundingThread extends Thread {
-    private ArrayList<ArrayList<Double>> matrix;
+    private Vector<Vector<Double>> matrix;
     private int row;
     private int col;
 
-    public RoundingThread(ArrayList<ArrayList<Double>> matrix, int row, int col) {
+    public RoundingThread(Vector<Vector<Double>> matrix, int row, int col) {
         this.matrix = matrix;
         this.row = row;
         this.col = col;

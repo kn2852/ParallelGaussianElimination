@@ -1,28 +1,34 @@
-import java.util.ArrayList;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.Vector;
 
 public class GEThread extends Thread{
-    private ArrayList<ArrayList<Double>> matrix;
-    private int row;
-    private int col;
-    private double value;
+    private Vector<Vector<Double>> matrix;
+    private Vector<TargetCell> cells;
 
-    public GEThread(ArrayList<ArrayList<Double>> matrix, int row, int col, double value) {
+    public GEThread(Vector<Vector<Double>> matrix, Vector<TargetCell> cells) {
         this.matrix = matrix;
-        this.row = row;
-        this.col = col;
-        this.value = value;
+        this.cells = cells;
     }
 
     @Override
     public void run() {
-        double cellCurrent = matrix.get(row).get(col);
-        //double startTime = System.nanoTime();
-        matrix.get(row).set(col, cellCurrent + value);
-        /*
-        double endTime = System.nanoTime();
-        System.out.println("GEThread: " + (endTime - startTime));
-        if ((endTime - startTime) > 10000) {
-            System.out.println(row + " " + col + " " + value);
-        }*/
+        for (TargetCell cell : cells) {
+            int row = cell.getRow();
+            int col = cell.getCol();
+            double val = cell.getVal();
+            double cellCurrent = matrix.get(row).get(col);
+            matrix.get(row).set(col, round(cellCurrent + val, 8));
+            //System.out.println("r " + row + " c " + col + " val " + val);
+        }
+        //matrix.forEach((n) -> System.out.println(n));
+    }
+
+    private static double round(double value, int places) {
+        if (places < 0) throw new IllegalArgumentException();
+
+        BigDecimal bd = new BigDecimal(Double.toString(value));
+        bd = bd.setScale(places, RoundingMode.HALF_UP);
+        return bd.doubleValue();
     }
 }
